@@ -22,7 +22,6 @@ const state = {
   selectedCell: null,
   notesMode: false,
   showBadgesModal: false,
-  devConsoleOpen: false,
   activeHintDetail: null,
   timerInterval: null
 };
@@ -516,9 +515,6 @@ function render() {
   if (state.activeHintDetail) {
     appEl.appendChild(createHintModal());
   }
-
-  // Developer console (gear in corner + actual console panel)
-  appEl.appendChild(createDevConsole());
 }
 
 // Header element builder
@@ -1034,110 +1030,6 @@ window.restartLevel = function() {
   if (over) over.remove();
   initNewGame(diff);
 };
-
-
-// DEVELOPER CHEATS CONSOLE
-
-function createDevConsole() {
-  const wrapper = document.createElement('div');
-
-  // Toggle button (gear)
-  const toggle = document.createElement('div');
-  toggle.className = 'dev-console-toggle';
-  toggle.innerText = '⚙️';
-  toggle.onclick = () => {
-    state.devConsoleOpen = !state.devConsoleOpen;
-    render();
-  };
-  wrapper.appendChild(toggle);
-
-  if (state.devConsoleOpen) {
-    const consolePanel = document.createElement('div');
-    consolePanel.className = 'dev-console';
-    consolePanel.innerHTML = `
-      <div class="dev-console-title">
-        <span>🔧 PROFESSOR OAK'S DEV CONSOLE (CHEATS)</span>
-        <span style="cursor:pointer;" onclick="closeDevConsole()">[X]</span>
-      </div>
-      <div class="dev-console-row">
-        <button class="dev-btn" onclick="cheatSolveGame()">Win Instantly</button>
-        <button class="dev-btn" onclick="cheatSimulateWins('hard', 5)">Add 5 Hard Wins (Unlock Expert)</button>
-        <button class="dev-btn" onclick="cheatSimulateWins('expert', 10)">Add 10 Expert Wins (Unlock Master)</button>
-        <button class="dev-btn" onclick="cheatSimulateWins('simple', 1)">Add 1 Simple Win</button>
-        <button class="dev-btn" onclick="cheatUnlockAllBadges()">Unlock All Badges</button>
-        <button class="dev-btn" onclick="cheatResetAll()">Reset Progress</button>
-      </div>
-    `;
-    wrapper.appendChild(consolePanel);
-  }
-
-  return wrapper;
-}
-
-window.closeDevConsole = function() {
-  state.devConsoleOpen = false;
-  render();
-};
-
-window.cheatSolveGame = function() {
-  if (!state.activeGame) return alert("Start a game first!");
-  
-  // Fill everything except 1 blank space
-  let emptyIdx = -1;
-  for (let i = 0; i < 81; i++) {
-    if (state.activeGame.initialBoard[i] === 0) {
-      if (emptyIdx === -1) {
-        emptyIdx = i; // Save one blank space to allow final entry win
-      } else {
-        state.activeGame.currentBoard[i] = state.activeGame.solution[i];
-      }
-    }
-  }
-
-  if (emptyIdx !== -1) {
-    state.selectedCell = emptyIdx;
-    alert("Cheat Applied! Enter the last digit at cell index " + emptyIdx + " (Correct digit: " + state.activeGame.solution[emptyIdx] + ") to win.");
-  } else {
-    // Already filled
-    checkWinCondition();
-  }
-  state.devConsoleOpen = false;
-  render();
-};
-
-window.cheatSimulateWins = function(level, count) {
-  state.stats[level] += count;
-  checkAndAwardBadges();
-  saveUserData();
-  alert(`Simulated ${count} wins for ${level}. Current wins for ${level}: ${state.stats[level]}`);
-  state.devConsoleOpen = false;
-  render();
-};
-
-window.cheatUnlockAllBadges = function() {
-  Object.keys(BADGES).forEach(badgeId => {
-    if (!state.badges.includes(badgeId)) state.badges.push(badgeId);
-  });
-  saveUserData();
-  alert("All Badges unlocked!");
-  state.devConsoleOpen = false;
-  render();
-};
-
-window.cheatResetAll = function() {
-  if (confirm("Reset everything? This will wipe your profile and statistics.")) {
-    localStorage.removeItem('pokemon_sudoku_trainer');
-    state.view = 'profile';
-    state.profile = { name: '', avatar: 'pikachu' };
-    state.stats = { simple: 0, medium: 0, hard: 0, expert: 0, master: 0 };
-    state.badges = [];
-    state.activeGame = null;
-    state.devConsoleOpen = false;
-    render();
-  }
-};
-
-
 // STARTUP INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
   loadUserData();

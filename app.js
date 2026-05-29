@@ -551,6 +551,7 @@ function createProfileView() {
     </div>
   `).join('');
 
+  const hasName = state.profile.name.trim().length > 0;
   view.innerHTML = `
     <div class="welcome-title">Pokémon Sudoku</div>
     <div class="welcome-subtitle">Train your brain, complete gym challenges, and earn elite badges! Ad-free forever.</div>
@@ -558,7 +559,7 @@ function createProfileView() {
     <div class="card-panel">
       <div class="input-container">
         <label class="input-label" for="trainer-name-field">Trainer Nickname</label>
-        <input class="nickname-input" type="text" id="trainer-name-field" placeholder="Enter name..." value="${state.profile.name}" maxlength="12">
+        <input class="nickname-input" type="text" id="trainer-name-field" placeholder="Enter name..." value="${state.profile.name}" maxlength="12" oninput="checkProfileName(this)">
       </div>
 
       <div class="avatar-selection-container">
@@ -568,7 +569,7 @@ function createProfileView() {
         </div>
       </div>
 
-      <button class="poke-btn" onclick="saveProfileAndEnter()">
+      <button class="poke-btn" id="enter-gym-btn" onclick="saveProfileAndEnter()" ${hasName ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;"'}>
         <span>Enter the Gym</span>
         <div style="font-size: 20px;">⚡</div>
       </button>
@@ -593,9 +594,28 @@ window.selectAvatar = function(avatarId) {
 window.saveProfileAndEnter = function() {
   const nameInput = document.getElementById('trainer-name-field');
   const name = nameInput ? nameInput.value.trim() : '';
-  state.profile.name = name || 'Trainer';
+  if (!name) {
+    showToast("Please enter a Trainer Nickname first!");
+    return;
+  }
+  state.profile.name = name;
   saveUserData();
   navigateTo('hub');
+};
+
+window.checkProfileName = function(input) {
+  const btn = document.getElementById('enter-gym-btn');
+  if (btn) {
+    if (input.value.trim().length > 0) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    } else {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
 };
 
 // GYM HUB SCREEN

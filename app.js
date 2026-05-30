@@ -382,35 +382,49 @@ function checkWinCondition() {
     // Save progression
     saveUserData();
 
-    // Render Victory Screen
+    // Render Victory / Celebration Screen
     setTimeout(() => {
-      showVictoryModal();
+      if (state.activeGame.recentEarnedBadges.length > 0) {
+        showBadgeCelebrationModal(state.activeGame.recentEarnedBadges);
+      } else {
+        showVictoryModal();
+      }
     }, 500);
   }
 }
 
 // Badge Checker Logic
 function checkAndAwardBadges() {
+  const diff = state.activeGame.difficulty;
+
   // Boulder: First Simple Win
-  if (state.stats.simple >= 1) awardBadge('boulder');
+  if (diff === 'simple') {
+    awardBadge('boulder');
+  }
   // Cascade: First Medium Win
-  if (state.stats.medium >= 1) awardBadge('cascade');
+  if (diff === 'medium') {
+    awardBadge('cascade');
+  }
   // Thunder: First Hard Win
-  if (state.stats.hard >= 1) awardBadge('thunder');
-  
-  // Expert Unlocked: 5 Hard wins
-  if (state.stats.hard >= 5) {
-    awardBadge('soul');
+  if (diff === 'hard') {
+    awardBadge('thunder');
+    // Expert Unlocked: exactly when they complete their 5th Hard game
+    if (state.stats.hard === 5) {
+      awardBadge('soul');
+    }
   }
   // Volcano: First Expert Win
-  if (state.stats.expert >= 1) awardBadge('volcano');
-  
-  // Master Unlocked: 10 Expert wins
-  if (state.stats.expert >= 10) {
-    awardBadge('earth');
+  if (diff === 'expert') {
+    awardBadge('volcano');
+    // Master Unlocked: exactly when they complete their 10th Expert game
+    if (state.stats.expert === 10) {
+      awardBadge('earth');
+    }
   }
   // Champion: First Master Win
-  if (state.stats.master >= 1) awardBadge('champion');
+  if (diff === 'master') {
+    awardBadge('champion');
+  }
 
   // Time speed-run: completed in under 5 minutes (300s)
   if (state.activeGame && state.activeGame.timer <= 300) {
@@ -1173,5 +1187,80 @@ window.closeHintModal = function(highlightCell) {
   state.activeHintDetail = null;
   render();
 };
+
+// Gym Badge Celebration Screen Overlay
+function showBadgeCelebrationModal(earnedBadges) {
+  const appEl = document.getElementById('app');
+  if (!appEl) return;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'badge-celebration-overlay';
+
+  const card = document.createElement('div');
+  card.className = 'modal-card';
+
+  // Get the speech bubble quote for the partner Pokemon
+  const avatarId = state.profile.avatar;
+  const avatarObj = AVATARS.find(a => a.id === avatarId) || AVATARS[0];
+  
+  let quote = "Congratulations!";
+  switch (avatarId) {
+    case 'pikachu': quote = "Pika-Pika! ⚡"; break;
+    case 'eevee': quote = "Ee-vee! ❤️"; break;
+    case 'charmander': quote = "Char-Char! 🔥"; break;
+    case 'bulbasaur': quote = "Bulba-Saur! 🍃"; break;
+    case 'squirtle': quote = "Squir-tle! 💧"; break;
+    case 'snorlax': quote = "Snoooor-lax... 💤"; break;
+  }
+
+  let badgesHtml = earnedBadges.map(bId => {
+    const details = BADGES[bId];
+    return `
+      <div class="celebration-badge-card">
+        <div class="badge-art ${details.art}"></div>
+        <div class="celebration-badge-title">${details.name}</div>
+        <div class="celebration-badge-desc">${details.desc}</div>
+      </div>
+    `;
+  }).join('');
+
+  card.innerHTML = `
+    <div class="modal-pokeball-back"></div>
+    <div class="modal-title" style="color: var(--primary-blue); font-size: 22px;">Badge Unlocked!</div>
+    
+    <div class="celebration-pokemon-container">
+      <div class="speech-bubble">${quote}</div>
+      <img class="celebration-pokemon" src="${avatarObj.image}" alt="${avatarObj.name}">
+      <!-- Sparkles -->
+      <div class="star-particle" style="top: 10%; left: 15%; animation-delay: 0.1s;">★</div>
+      <div class="star-particle" style="top: 30%; right: 10%; animation-delay: 0.4s;">✧</div>
+      <div class="star-particle" style="top: 60%; left: 20%; animation-delay: 0.8s;">✦</div>
+      <div class="star-particle" style="top: 80%; right: 25%; animation-delay: 1.2s;">★</div>
+    </div>
+
+    <div style="font-size: 13px; color: var(--text-medium); margin-top: 6px; line-height: 1.4;">
+      Trainer <strong>${state.profile.name}</strong>, your partner <strong>${avatarObj.name}</strong> is celebrating your achievement!
+    </div>
+
+    <div class="celebration-badges-row">
+      ${badgesHtml}
+    </div>
+
+    <button class="poke-btn" style="width: 100%; margin-top: 6px;" onclick="closeCelebrationAndShowStats()">
+      🏅 Put in Badge Case
+    </button>
+  `;
+
+  overlay.appendChild(card);
+  appEl.appendChild(overlay);
+}
+
+window.closeCelebrationAndShowStats = function() {
+  const overlay = document.getElementById('badge-celebration-overlay');
+  if (overlay) overlay.remove();
+  showVictoryModal();
+};
+
 
 

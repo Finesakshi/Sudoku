@@ -740,8 +740,8 @@ function createHubView() {
       <button class="poke-btn" style="flex-grow: 1; padding: 12px; font-size: 14px;" onclick="showBadgesCabinet(true)">
         🖼 View Badge Room
       </button>
-      <button class="poke-btn" style="background: rgba(255,255,255,0.05); border-color: var(--panel-border); font-size: 14px; padding: 12px;" onclick="navigateTo('profile')">
-        ⚙ Profile
+      <button class="poke-btn secondary" style="font-size: 14px; padding: 12px;" onclick="navigateTo('profile')">
+        ⚙️ Profile
       </button>
     </div>
 

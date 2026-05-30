@@ -240,7 +240,7 @@ function inputNumber(num) {
     }
   }
 
-  renderBoard();
+  render();
   renderStrikes();
 }
 
@@ -258,7 +258,7 @@ function eraseCell() {
 
   state.activeGame.currentBoard[idx] = 0;
   state.activeGame.notes[idx] = [];
-  renderBoard();
+  render();
 }
 
 function undoMove() {
@@ -268,7 +268,7 @@ function undoMove() {
   state.activeGame.currentBoard = previousState.board;
   state.activeGame.notes = previousState.notes;
 
-  renderBoard();
+  render();
 }
 
 function giveHint() {
@@ -714,6 +714,19 @@ function createHubView() {
   return view;
 }
 
+// Check if a digit is fully filled correctly on the board (appears 9 times)
+function isDigitCompleted(num) {
+  if (!state.activeGame) return false;
+  const { currentBoard, solution } = state.activeGame;
+  let count = 0;
+  for (let i = 0; i < 81; i++) {
+    if (currentBoard[i] === num && currentBoard[i] === solution[i]) {
+      count++;
+    }
+  }
+  return count === 9;
+}
+
 // PLAY ARENA VIEW
 function createGameView() {
   const view = document.createElement('div');
@@ -772,9 +785,15 @@ function createGameView() {
     </div>
 
     <div class="numpad-container">
-      ${Array.from({ length: 9 }, (_, i) => i + 1).map(num => `
-        <button class="numpad-btn" onclick="inputNumber(${num})">${num}</button>
-      `).join('')}
+      ${Array.from({ length: 9 }, (_, i) => {
+        const num = i + 1;
+        const completed = isDigitCompleted(num);
+        if (completed) {
+          return `<div style="aspect-ratio: 1;"></div>`;
+        } else {
+          return `<button class="numpad-btn" onclick="inputNumber(${num})">${num}</button>`;
+        }
+      }).join('')}
     </div>
   `;
 

@@ -30,7 +30,7 @@
   /* Sudoku cell states - Soothing pastels */
   --cell-bg: #ffffff;
   --cell-selected: #e0f2fe;       /* Soft sky blue */
-  --cell-highlight: #f8fafc;      /* Barely visible coordinate highlight */
+  --cell-highlight: rgba(79, 70, 229, 0.08);      /* Visible, soothing coordinate highlight */
   --cell-same-val: #dcfce7;       /* Soft green */
   --cell-error: #fee2e2;          /* Soft red */
   --cell-given: #0f172a;

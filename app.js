@@ -45,7 +45,7 @@ const BADGES = {
   volcano: { name: 'Volcano Badge', desc: 'Complete first Expert game', art: 'volcano' },
   earth: { name: 'Earth Badge', desc: 'Unlock Master Level (10 Expert completed)', art: 'earth' },
   champion: { name: 'Champion Badge', desc: 'Complete first Master game', art: 'champion' },
-  quickclaw: { name: 'Quick Claw Badge', desc: 'Complete a puzzle in under 5 minutes', art: 'quickclaw' },
+  quickclaw: { name: 'Quick Claw Badge', desc: 'Complete a puzzle in under 3 minutes', art: 'quickclaw' },
   focusband: { name: 'Focus Band Badge', desc: 'Complete a puzzle with 0 mistakes', art: 'focusband' }
 };
 
@@ -426,8 +426,8 @@ function checkAndAwardBadges() {
     awardBadge('champion');
   }
 
-  // Time speed-run: completed in under 5 minutes (300s)
-  if (state.activeGame && state.activeGame.timer <= 300) {
+  // Time speed-run: completed in under 3 minutes (180s)
+  if (state.activeGame && state.activeGame.timer <= 180) {
     awardBadge('quickclaw');
   }
 

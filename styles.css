@@ -357,6 +357,26 @@ input {
   transform: translateY(0.5px);
 }
 
+.poke-btn.secondary {
+  background: #f1f5f9;
+  color: var(--text-dark);
+  border: 1px solid #cbd5e1;
+  box-shadow: none;
+}
+
+.poke-btn.secondary:hover {
+  background: #e2e8f0;
+}
+
+.poke-btn.danger {
+  background: linear-gradient(135deg, var(--primary-red) 0%, #b91c1c 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.poke-btn.danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
 /* Gym Hub Screen */
 .hub-view {
   display: flex;

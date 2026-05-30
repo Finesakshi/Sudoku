@@ -566,6 +566,8 @@ function createProfileView() {
   `).join('');
 
   const hasName = state.profile.name.trim().length > 0;
+  const isExistingTrainer = localStorage.getItem('pokemon_sudoku_trainer') !== null;
+
   view.innerHTML = `
     <div class="welcome-title">Pokémon Sudoku</div>
     <div class="welcome-subtitle">Train your brain, complete gym challenges, and earn elite badges! Ad-free forever.</div>
@@ -583,10 +585,23 @@ function createProfileView() {
         </div>
       </div>
 
-      <button class="poke-btn" id="enter-gym-btn" onclick="saveProfileAndEnter()" ${hasName ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;"'}>
-        <span>Enter the Gym</span>
-        <div style="font-size: 20px;">⚡</div>
-      </button>
+      <div class="profile-actions" style="display: flex; flex-direction: column; gap: 10px; margin-top: 12px; width: 100%;">
+        <button class="poke-btn" id="enter-gym-btn" onclick="saveProfileAndEnter()" ${hasName ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;"'} style="width: 100%;">
+          <span>${isExistingTrainer ? 'Save Changes' : 'Enter the Gym'}</span>
+          <div style="font-size: 20px;">⚡</div>
+        </button>
+        
+        ${isExistingTrainer ? `
+          <div style="display: flex; gap: 10px; width: 100%;">
+            <button class="poke-btn secondary" onclick="navigateTo('hub')" style="flex: 1;">
+              <span>Cancel</span>
+            </button>
+            <button class="poke-btn danger" onclick="confirmDeleteProfile()" style="flex: 1;">
+              <span>🗑️ Delete Profile</span>
+            </button>
+          </div>
+        ` : ''}
+      </div>
     </div>
   `;
 
@@ -615,6 +630,17 @@ window.saveProfileAndEnter = function() {
   state.profile.name = name;
   saveUserData();
   navigateTo('hub');
+};
+
+window.confirmDeleteProfile = function() {
+  if (confirm("Are you sure you want to delete your Trainer Profile? This will reset all your stats, badges, and progress permanently!")) {
+    localStorage.removeItem('pokemon_sudoku_trainer');
+    state.profile = { name: '', avatar: 'pikachu' };
+    state.stats = { simple: 0, medium: 0, hard: 0, expert: 0, master: 0 };
+    state.badges = [];
+    showToast("Trainer profile deleted. Starting fresh!");
+    navigateTo('profile');
+  }
 };
 
 window.checkProfileName = function(input) {
